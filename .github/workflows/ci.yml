@@ -22,7 +22,7 @@ jobs:
       - name: Executar testes
         working-directory: backend
         env:
-          DATABASE_URL: sqlite+pysqlite:///:memory:
+          DATABASE_URL: "sqlite+pysqlite:///:memory:"
         run: python -m pytest -q
 
   frontend-check:
