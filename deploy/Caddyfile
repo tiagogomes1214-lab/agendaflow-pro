@@ -1,0 +1,10 @@
+{$DOMAIN} {
+    encode zstd gzip
+    reverse_proxy frontend:3000
+    header {
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        -Server
+    }
+}

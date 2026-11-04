@@ -1,0 +1,33 @@
+# Segredos e configuracoes locais
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Banco de dados e backups que podem conter informacoes pessoais
+*.db
+*.sqlite
+*.sqlite3
+*.backup
+*.dump
+*.sql.gz
+backups/
+
+# Python
+**/__pycache__/
+**/.pytest_cache/
+*.pyc
+.venv/
+venv/
+
+# Next.js / Node
+node_modules/
+.next/
+*.tsbuildinfo
+coverage/
+
+# Ambiente
+*.log
+.DS_Store
