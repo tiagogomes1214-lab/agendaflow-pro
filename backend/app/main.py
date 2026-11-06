@@ -24,8 +24,12 @@ def initialize_database():
     secret_key()
     email = os.getenv('ADMIN_EMAIL', '').strip().lower()
     password = os.getenv('ADMIN_PASSWORD', '')
-    if not email or len(password) < 12 or 'CHANGE_ME' in password:
-        raise RuntimeError('Configure ADMIN_EMAIL e ADMIN_PASSWORD (mín. 12 caracteres) no .env')
+    if not email:
+        raise RuntimeError('ADMIN_EMAIL nao foi recebido pelo processo Python. Verifique a variavel na Discloud.')
+    if len(password) < 12:
+        raise RuntimeError(f'ADMIN_PASSWORD invalida: processo Python recebeu {len(password)} caracteres; minimo 12. Nao envie o valor da senha aos logs.')
+    if 'CHANGE_ME' in password:
+        raise RuntimeError('ADMIN_PASSWORD ainda contem CHANGE_ME. Configure outra senha privada na Discloud.')
     if engine.dialect.name == 'postgresql':
         with engine.begin() as conn:
             conn.execute(text('CREATE EXTENSION IF NOT EXISTS btree_gist'))
