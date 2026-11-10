@@ -1,0 +1,14 @@
+{
+  "name": "agendaflow-discloud-frontend",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Deploy Discloud do frontend Next.js do monorepo AgendaFlow",
+  "main": "server.js",
+  "scripts": {
+    "build": "node scripts/discloud-build.cjs",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}
