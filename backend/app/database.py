@@ -19,14 +19,36 @@ def database_url():
         sslmode = os.getenv("DB_SSLMODE", "").strip()
         if not sslmode and host.endswith(".supabase.com"):
             sslmode = "require"
+        port = int(os.getenv("DB_PORT", "5432"))
+        query = {"sslmode": sslmode} if sslmode else {}
+        # The Supabase shared pooler works over IPv4. Resolve A records
+        # explicitly to avoid selecting unreachable IPv6 routes on hosts
+        # without IPv6 access. Keep 'host' for TLS/SNI and auth routing.
+        if host.endswith(".pooler.supabase.com"):
+            import socket
+
+            try:
+                matches = socket.getaddrinfo(
+                    host, port, family=socket.AF_INET, type=socket.SOCK_STREAM,
+                )
+                ipv4_addresses = list(dict.fromkeys(item[4][0] for item in matches))
+            except socket.gaierror as exc:
+                raise RuntimeError(
+                    "Nao foi possivel resolver o IPv4 do Session Pooler Supabase na Discloud."
+                ) from exc
+            if not ipv4_addresses:
+                raise RuntimeError("Session Pooler Supabase sem endereco IPv4 acessivel via DNS.")
+            query["hostaddr"] = ipv4_addresses[0]
+            print("AgendaFlow DB config: Supabase Session Pooler IPv4 selecionado.", flush=True)
+
         return URL.create(
             "postgresql+psycopg",
             username=os.getenv("DB_USER", "agenda").strip(),
             password=os.getenv("DB_PASSWORD", ""),
             host=host,
-            port=int(os.getenv("DB_PORT", "5432")),
+            port=port,
             database=os.getenv("DB_NAME", "agendaflow").strip(),
-            query={"sslmode": sslmode} if sslmode else {},
+            query=query,
         )
 
     override = os.getenv("DATABASE_URL", "").strip()
