@@ -1,0 +1,13 @@
+.git/
+.github/
+frontend/
+deploy/
+scripts/
+.env
+.env.*
+**/__pycache__/
+**/.pytest_cache/
+backend/tests/
+*.db
+*.sqlite3
+*.log
