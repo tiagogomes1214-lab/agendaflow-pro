@@ -1,0 +1,12 @@
+.git/
+.github/
+backend/
+deploy/
+.env
+.env.*
+**/.env
+**/.env.*
+**/node_modules/
+**/.next/
+*.tsbuildinfo
+*.log
