@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 
 with tempfile.TemporaryDirectory(prefix="agendaflow-smoke-") as tmp:
     os.environ["DATABASE_URL"] = "sqlite+pysqlite:///" + str(Path(tmp) / "database.sqlite")
-    os.environ["ADMIN_EMAIL"] = "teste@agendaflow.local"
+    os.environ["ADMIN_EMAIL"] = "teste@example.com"
     os.environ["ADMIN_PASSWORD"] = "SenhaApenasParaTeste123456"
     os.environ["JWT_SECRET"] = "ci-test-secret-not-for-production-12345678901234567890"
     os.environ.pop("DB_HOST", None)
