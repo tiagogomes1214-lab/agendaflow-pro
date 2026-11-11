@@ -1,7 +1,11 @@
 """Teste integrado do AgendaFlow unificado; usa somente dados temporarios."""
 import os
+import sys
 import tempfile
 from pathlib import Path
+
+# Execucao via python scripts/... precisa incluir a raiz do repositorio.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fastapi.testclient import TestClient
 
