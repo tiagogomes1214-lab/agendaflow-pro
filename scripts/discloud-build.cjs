@@ -52,5 +52,26 @@ if (!fs.existsSync(path.join(serverRoot, ".next", "BUILD_ID"))) {
   throw new Error("O build standalone nao preservou .next/BUILD_ID.");
 }
 const entry = prefix ? "frontend/server.js" : "server.js";
+
+// O servidor standalone gerado pelo Next.js costuma ler PORT e HOSTNAME
+// do ambiente antes que o Next carregue .env. Para a Discloud, fixamos
+// os valores DIRETAMENTE no codigo gerado, sem depender dessas variaveis.
+// A alteracao ocorre a cada BUILD, preservando a estrutura standalone.
+const generatedEntry = path.join(dist, entry);
+let generatedCode = fs.readFileSync(generatedEntry, "utf8");
+const portPattern = /^([ \\t]*)const currentPort\\s*=\\s*[^\\r\\n]*process\\.env\\.PORT[^\\r\\n]*$/m;
+const hostPattern = /^([ \\t]*)const hostname\\s*=\\s*[^\\r\\n]*process\\.env\\.HOSTNAME[^\\r\\n]*$/m;
+if (!portPattern.test(generatedCode) || !hostPattern.test(generatedCode)) {
+  throw new Error("[AgendaFlow] O formato do servidor standalone mudou. Nao foi possivel definir host e porta no codigo; verifique a versao do Next.js.");
+}
+generatedCode = generatedCode
+  .replace(portPattern, "$1const currentPort = 8080; // Discloud: porta fixa no codigo")
+  .replace(hostPattern, "$1const hostname = '0.0.0.0'; // Discloud: host fixo no codigo");
+fs.writeFileSync(generatedEntry, generatedCode);
+const check = spawnSync(process.execPath, ["--check", generatedEntry], { stdio: "inherit" });
+if (check.status !== 0) {
+  throw new Error("[AgendaFlow] A validacao de sintaxe do servidor gerado falhou.");
+}
+console.log("[AgendaFlow] HOST e PORT fixados no codigo do Next.js: 0.0.0.0:8080.");
 fs.writeFileSync(path.join(dist, "agendaflow-build.json"), JSON.stringify({ entry }) + "\n");
 console.log("[AgendaFlow] Build de producao salvo em dist/ com sucesso. Entrada: " + entry);
