@@ -1,49 +1,41 @@
-"""AgendaFlow — frontend estático Next.js e API FastAPI na mesma aplicação.
+"""AgendaFlow - site Next.js e API FastAPI juntos na mesma aplicação Discloud.
 
-Na Discloud, somente o Python é executado. O HTML/JS é compilado
-antecipadamente pelo GitHub Actions e versionado na pasta site/.
+O GitHub Actions compila o frontend estático em site/.
+Somente FastAPI/Uvicorn executa na Discloud, em 0.0.0.0:8080.
 """
-from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Request
 from fastapi.staticfiles import StaticFiles
 
-from app.main import app as api
+from app.main import app
 
 SITE_DIR = Path(__file__).resolve().parent / "site"
 
-
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    # Aplicações FastAPI montadas não iniciam o lifespan automaticamente.
-    # Preserva a inicialização do banco e da conta administrativa.
-    async with api.router.lifespan_context(api):
-        yield
-
-
-app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
-
-
-@app.get("/health")
-def health():
-    return {"status": "ok", "version": "2.0.0", "deployment": "unificado"}
+# O React faz requisições para /api/public, /api/auth e /api/admin.
+# Encaminhe esses caminhos à API FastAPI, sem rede externa ou outro servidor.
+# Os caminhos antigos (/public, /auth, /admin) permanecem disponíveis
+# durante a migração, para não interromper o frontend separado existente.
+@app.middleware("http")
+async def api_alias(request: Request, call_next):
+    if request.scope["path"].startswith("/api/"):
+        request.scope["path"] = request.scope["path"][4:]
+        request.scope["raw_path"] = request.scope["path"].encode("utf-8")
+    return await call_next(request)
 
 
-# O frontend chama /api/public/..., /api/auth/... e /api/admin/...
-# Esses endpoints são tratados pelo FastAPI no mesmo host e porta.
-app.mount("/api", api)
-
-# A pasta site/ contém a exportação estática do Next.js, criada pelo workflow.
 if not (SITE_DIR / "index.html").is_file():
     raise RuntimeError(
-        "Frontend nao compilado: pasta site/index.html ausente. "
-        "Verifique o workflow Build Frontend Unificado do GitHub Actions."
+        "Frontend nao compilado: site/index.html ausente. "
+        "Confira o workflow GitHub Actions 'Compilar frontend do AgendaFlow unificado'."
     )
-app.mount("/", StaticFiles(directory=str(SITE_DIR), html=True), name="frontend")
+
+# Os endpoints de API foram registrados antes deste mount.
+# Servir a pasta Next.js por último garante /, /admin/ e /minha-reserva/.
+app.mount("/", StaticFiles(directory=str(SITE_DIR), html=True), name="site")
 
 
 if __name__ == "__main__":
-    print("[AgendaFlow] SITE + API no mesmo endereco: 0.0.0.0:8080", flush=True)
+    print("[AgendaFlow] Frontend + API na mesma aplicacao: 0.0.0.0:8080", flush=True)
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")
