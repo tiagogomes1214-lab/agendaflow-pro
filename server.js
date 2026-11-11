@@ -4,8 +4,10 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 process.env.NODE_ENV = "production";
-process.env.PORT = "8080";
-process.env.HOSTNAME = "0.0.0.0";
+
+// Host e porta fixos no codigo gerado pelo BUILD (nao dependem do .env).
+const SITE_HOST = "0.0.0.0";
+const SITE_PORT = 8080;
 
 const dist = path.join(__dirname, "dist");
 const manifestPath = path.join(dist, "agendaflow-build.json");
@@ -26,5 +28,5 @@ if (!fs.existsSync(entry) || !fs.existsSync(buildId)) {
   process.exit(1);
 }
 
-console.log("[AgendaFlow] Iniciando site Next.js em 0.0.0.0:8080.");
+console.log(`[AgendaFlow] Iniciando Next.js no host ${SITE_HOST}, porta ${SITE_PORT} (fixos no codigo).`);
 require(entry);
