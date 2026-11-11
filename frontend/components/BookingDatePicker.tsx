@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { addDays, dateAt, dateLabel } from "@/lib/api";
 
 type BookingDatePickerProps = {
@@ -58,7 +58,7 @@ export default function BookingDatePicker({ value, minDate, maxDate, onChange }:
     function closeOnOutside(event: PointerEvent) {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     }
-    function closeOnEscape(event: globalThis.KeyboardEvent) {
+    function closeOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setOpen(false);
         rootRef.current?.querySelector<HTMLButtonElement>(".pro-date-trigger")?.focus();
@@ -90,7 +90,7 @@ export default function BookingDatePicker({ value, minDate, maxDate, onChange }:
     rootRef.current?.querySelector<HTMLButtonElement>(".pro-date-trigger")?.focus();
   }
 
-  function moveFocus(event: KeyboardEvent<HTMLButtonElement>, current: string) {
+  function moveFocus(event: ReactKeyboardEvent<HTMLButtonElement>, current: string) {
     const movement: Record<string, number> = {
       ArrowLeft: -1,
       ArrowRight: 1,
