@@ -1,0 +1,51 @@
+name: Compilar frontend do AgendaFlow unificado
+
+on:
+  push:
+    branches: [discloud-unificado]
+    paths-ignore:
+      - 'site/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agendaflow-discloud-unificado
+  cancel-in-progress: false
+
+jobs:
+  export-next:
+    name: Exportar Next.js para hospedagem FastAPI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+      - name: Preparar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependencias do frontend
+        run: npm --prefix frontend install --no-audit --no-fund
+      - name: Gerar site estatico com Next.js
+        run: npm --prefix frontend run build
+      - name: Conferir paginas exportadas
+        run: |
+          test -s frontend/out/index.html
+          test -s frontend/out/admin/index.html
+          test -s frontend/out/minha-reserva/index.html
+      - name: Atualizar pasta servida pelo Python
+        run: |
+          rm -rf site
+          mkdir -p site
+          cp -a frontend/out/. site/
+      - name: Publicar arquivos compilados na branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f -A site
+          if ! git diff --cached --quiet; then
+            git commit -m 'build(frontend): atualizar paginas estaticas do AgendaFlow'
+            git push origin HEAD:discloud-unificado
+          else
+            echo 'Nenhuma alteracao nos arquivos exportados'
+          fi
