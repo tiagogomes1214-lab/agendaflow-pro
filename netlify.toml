@@ -1,0 +1,9 @@
+# Deploy do frontend Next.js no Netlify, a partir do monorepo AgendaFlow.
+# Com base=frontend, os caminhos de build/publish sao relativos a essa pasta.
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
