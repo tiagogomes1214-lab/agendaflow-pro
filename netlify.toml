@@ -1,5 +1,5 @@
-# Deploy do frontend Next.js no Netlify, a partir do monorepo AgendaFlow.
-# Com base=frontend, os caminhos de build/publish sao relativos a essa pasta.
+# Configuracao do frontend Next.js do AgendaFlow hospedado no Netlify.
+# O monorepo guarda a aplicacao dentro de frontend/.
 [build]
   base = "frontend"
   command = "npm run build"
@@ -7,3 +7,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# O projeto Netlify foi criado sem executar o runtime do Next.js.
+# Solicita explicitamente o adaptador que gera as Netlify Functions e rotas.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
