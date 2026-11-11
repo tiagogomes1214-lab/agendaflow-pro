@@ -59,8 +59,8 @@ const entry = prefix ? "frontend/server.js" : "server.js";
 // A alteracao ocorre a cada BUILD, preservando a estrutura standalone.
 const generatedEntry = path.join(dist, entry);
 let generatedCode = fs.readFileSync(generatedEntry, "utf8");
-const portPattern = /^([ \\t]*)const currentPort\\s*=\\s*[^\\r\\n]*process\\.env\\.PORT[^\\r\\n]*$/m;
-const hostPattern = /^([ \\t]*)const hostname\\s*=\\s*[^\\r\\n]*process\\.env\\.HOSTNAME[^\\r\\n]*$/m;
+const portPattern = /^([ \t]*)const currentPort\s*=\s*[^\r\n]*process\.env\.PORT[^\r\n]*$/m;
+const hostPattern = /^([ \t]*)const hostname\s*=\s*[^\r\n]*process\.env\.HOSTNAME[^\r\n]*$/m;
 if (!portPattern.test(generatedCode) || !hostPattern.test(generatedCode)) {
   throw new Error("[AgendaFlow] O formato do servidor standalone mudou. Nao foi possivel definir host e porta no codigo; verifique a versao do Next.js.");
 }
