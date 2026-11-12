@@ -1,0 +1,23 @@
+name: Validar API e frontend unificados
+
+on:
+  push:
+    branches: [discloud-unificado]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Testar pagina inicial, login e API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar dependencias Python
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+      - name: Testar frontend e API localmente
+        run: python scripts/smoke_unificado.py
